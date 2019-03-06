@@ -1,0 +1,175 @@
+<meta charset="utf-8">
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="data.js" ></script>
+        <script>
+            function createTd(text){
+                var td = document.createElement("td");
+                td.innerHTML = text;
+                return td;
+            }
+
+            function createTh(text){
+                var th = document.createElement("th");
+                th.innerHTML = text;
+                return th;
+            }
+            
+            function getStatusStr(code){
+                switch(code){
+                    case 0:
+                    return 'down';
+                    case 1:
+                    return 'up';
+                    case 2:
+                    return 'filtered';
+                }
+            }
+
+            function expand(i){
+                var div = document.getElementById(i);
+                if (div.style.display === "block") {
+                    div.style.display = "none";
+                } else {
+                    div.style.display = "block";
+                }
+            }
+
+            function createTable(ports){
+                var table = document.createElement("table");
+                var thead = document.createElement("thead");
+                var tr = document.createElement("tr");
+                tr.appendChild(createTh("port"));
+                tr.appendChild(createTh("status"));
+                tr.appendChild(createTh("protocol"));
+                tr.appendChild(createTh("service"));
+                tr.appendChild(createTh("os"));
+                thead.appendChild(tr);
+                table.appendChild(thead);
+                var tbody = document.createElement("tbody");
+                try{
+                    for(var i=0; i< ports.length; i++){
+                        var port = ports[i];
+                        var row = document.createElement('tr');
+                        row.appendChild(createTd(port.port));
+                        row.appendChild(createTd(port.status));
+                        row.appendChild(createTd(port.protocol));
+                        row.appendChild(createTd(port.service));
+                        row.appendChild(createTd(port.os));
+                        tbody.appendChild(row);
+                    }
+                }catch(e){}
+                table.appendChild(tbody);
+                return table;
+            }
+
+            function reload(hideZero){
+                var container = document.getElementById("container");
+                //clear container
+                container.innerHTML="";
+                var count = 0;
+                for(var i=0; i<data.length; i++){
+                    var d = data[i];
+                    if(hideZero){
+                        //continue if scanned_ports == null
+                        try{
+                            if(d.scannedPorts.length == 0) continue; //throws exception if null
+                        }catch(e){continue;}
+                    }
+                    count++;
+                    var row = document.createElement("tr");
+                    row.appendChild(createTd(d.host));
+                    row.appendChild(createTd(getStatusStr(d.status)));
+                    row.appendChild(createTd(d.scannedPorts != null ? d.scannedPorts.length : 0));
+                    row.setAttribute("onClick","expand("+i+");");
+                    row.className = "host";
+                    container.appendChild(row);
+                    
+                    var divRow = document.createElement("tr");
+                    var td = document.createElement("td");
+                    td.setAttribute("colspan",3);
+                    var collapsible = document.createElement('div');
+                    collapsible.className = 'ports';
+                    collapsible.id = i;
+                    collapsible.appendChild(createTable(d.scannedPorts));                
+                    td.append(collapsible);
+                    divRow.append(td);
+                    container.appendChild(divRow);
+                }
+                document.getElementById("title").innerHTML = count.toString() + " 개";
+            }
+
+        </script>
+        <style>
+            table{
+                text-align: left;
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            div.ports{
+                display: none;
+                margin:10px;
+                background:#fea;
+            }
+            tr.host:hover{
+                background: #ddd;
+            }
+            tr.host{
+                background:white;
+                padding:20px;
+            }
+            table, th, td{
+                border-bottom: 1px solid #ddd;
+                padding: 5px;
+                min-height: 0;
+            }
+            th{
+                width:10%;
+            }
+            div#header{
+                
+                background-color: #eee;
+                position: fixed;
+                top: 0;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div id='header'>
+            <h2>호스트 (Up,Filtered):</h2>
+            <h2 id="title"></h2>
+            <button onclick="reload(true);">포트 0 숨기기</button>
+            <button onclick="reload(false);">포트 0 보이기</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>host</th>
+                        <th>status</th>
+                        <th>ports</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div style="margin-top:200px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="container">
+                </tbody>
+            </table>
+        </div>
+
+
+        <script>
+            reload(false);
+        </script>
+    </body>
+</html>
