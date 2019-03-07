@@ -5,6 +5,7 @@
         <script src="data.js" ></script>
         <script>
             var existingPorts = [];
+            var isShowZeroPorts = false;
             //TODO: MAKE THIS WORK
             function createTd(text){
                 var td = document.createElement("td");
@@ -39,6 +40,8 @@
             }
 
             function createTable(ports){
+                var selection = document.getElementById('filter_selection').options[document.getElementById('filter_selection').selectedIndex].value
+                var filter_contents = document.getElementById('filter').value
                 var table = document.createElement("table");
                 var thead = document.createElement("thead");
                 var tr = document.createElement("tr");
@@ -59,17 +62,27 @@
                     for(var i=0; i< ports.length; i++){
                         var port = ports[i];
                         var row = document.createElement('tr');
+                        var isAdded = false;
                         for (key in port){
+                            if(filter_contents != '' && key == 'port' && selection == 'port'){
+                                if(port[key] != filter_contents){
+                                    break;
+                                }
+                            }
                             row.appendChild(createTd(port[key]));
                         }
-                        tbody.appendChild(row);
+                        if(row.childNodes.length != 0){
+                            tbody.appendChild(row);
+                        }
                     }
                 }catch(e){}
+                //if(tbody.childNodes.length == 4)   return false;
                 table.appendChild(tbody);
                 return table;
             }
 
-            function reload(hideZero){
+            function reload(){
+                var hideZero = isShowZeroPorts;
                 var container = document.getElementById("container");
                 //clear container
                 container.innerHTML="";
@@ -84,6 +97,8 @@
                     }
                     count++;
                     var row = document.createElement("tr");
+                    var tmp_table =createTable(d.scannedPorts);
+                    if(tmp_table == false) break;
                     row.appendChild(createTd(d.host));
                     row.appendChild(createTd(getStatusStr(d.status)));
                     row.appendChild(createTd(d.scannedPorts != null ? d.scannedPorts.length : 0));
@@ -97,14 +112,18 @@
                     var collapsible = document.createElement('div');
                     collapsible.className = 'ports';
                     collapsible.id = i;
-                    collapsible.appendChild(createTable(d.scannedPorts));
+                    collapsible.appendChild(tmp_table);
                     td.append(collapsible);
                     divRow.append(td);
                     container.appendChild(divRow);
                 }
                 document.getElementById("title").innerHTML = count.toString() + " 개";
             }
-
+            
+            function changeHideZero(hideZero){
+                isShowZeroPorts = hideZero;
+                reload();
+            }
         </script>
         <style>
             table{
@@ -146,13 +165,13 @@
         <div id='header'>
             <h2>호스트 (Up,Filtered):</h2>
             <h2 id="title"></h2>
-            <button onclick="reload(true);">포트 0 숨기기</button>
-            <button onclick="reload(false);">포트 0 보이기</button>
-            <select>
+            <button onclick="changeHideZero(true);">포트 0 숨기기</button>
+            <button onclick="changeHideZero(false);">포트 0 보이기</button>
+            <select id="filter_selection">
                 <option value="port">Port</option>
                 <option value="service">Service</option>
             </select>
-            <input type="text" id="filter">
+            <input type="text" id="filter" onclick="reload()">
             <button>검색</button>
             <table>
                 <thead>
@@ -180,7 +199,7 @@
 
 
         <script>
-            reload(false);
+            reload();
         </script>
     </body>
 </html>
