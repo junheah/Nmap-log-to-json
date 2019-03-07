@@ -35,40 +35,40 @@ public class Main {
 			}
 			//write to file
 			try {
-			      String result = new Gson().toJson(readRecursive(file));
-			      FileWriter fw = new FileWriter(output);
-			      fw.write(result);
-			      fw.close();
-			      System.out.println("json output: " + output.getAbsolutePath());
-			      if(js) {
-			    	  //create web folder
-			    	  File webFolder = new File("result_web_"+count);
-			    	  while(webFolder.exists()) {
-			    		  count++;
-			    		  webFolder = new File("result_web_"+count);
-			    	  }
-			    	  webFolder.mkdir();
-			    	  //save as js var
-			    	  fw = new FileWriter(new File(webFolder, "data.js"));
-				      fw.write("var data = " + result);
-				      fw.close();
-				      //copy html from res
-				      
-				      InputStream is = ClassLoader.getSystemClassLoader().getResource("result.html").openStream();
-				      FileOutputStream  os = new FileOutputStream(new File(webFolder,"result.html"));
-				      byte[] buffer = new byte[1024];
-				      int length;
-				      while ((length = is.read(buffer)) > 0) {
-				    	  os.write(buffer, 0, length);
-				      }
-				      is.close();
-				      os.close();
-				      System.out.println("web output: " + webFolder.getAbsolutePath());
-			      }
-			    } catch (Exception e) {
-			      e.printStackTrace();
-			    }
-				
+				List<Data> datas = readRecursive(file);
+				System.out.println("hosts count: " + datas.size());
+				String result = new Gson().toJson(datas);
+				FileWriter fw = new FileWriter(output);
+				fw.write(result);
+				fw.close();
+				System.out.println("json output: " + output.getAbsolutePath());
+				if(js) {
+					//create web folder
+					File webFolder = new File("result_web_"+count);
+					while(webFolder.exists()) {
+						count++;
+						webFolder = new File("result_web_"+count);
+					}
+					webFolder.mkdir();
+					//save as js var
+					fw = new FileWriter(new File(webFolder, "data.js"));
+					fw.write("var data = " + result);
+					fw.close();
+					//copy html from res
+					InputStream is = ClassLoader.getSystemClassLoader().getResource("result.html").openStream();
+					FileOutputStream  os = new FileOutputStream(new File(webFolder,"result.html"));
+					byte[] buffer = new byte[1024];
+					int length;
+					while ((length = is.read(buffer)) > 0) {
+						os.write(buffer, 0, length);
+					}
+					is.close();
+					os.close();
+					System.out.println("web output: " + webFolder.getAbsolutePath());
+				}
+			} catch (Exception e) {
+			  e.printStackTrace();
+			}
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -87,7 +87,6 @@ public class Main {
 		return result;
 	}
 	
-	
 	static String[] statStr = {"Down","Up","Filtered"};
 	Data parseFile(File f) {
 		Data d = null;
@@ -102,7 +101,6 @@ public class Main {
 		    	   //parse status
 		    	   String raw[] = line.split("\t");
 		    	   host = raw[0].split(" ")[1];
-		    	   System.out.println("host: "+host);
 		    	   String stat = raw[1].split(" ")[1];
 		    	   for(int i=0; i<statStr.length; i++) {
 		    		   if(stat.contains(statStr[i])) {

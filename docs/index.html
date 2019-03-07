@@ -58,25 +58,40 @@
                 thead.appendChild(tr);
                 table.appendChild(thead);
                 var tbody = document.createElement("tbody");
+                var isAdded = false;
                 try{
                     for(var i=0; i< ports.length; i++){
                         var port = ports[i];
                         var row = document.createElement('tr');
-                        var isAdded = false;
                         for (key in port){
-                            if(filter_contents != '' && key == 'port' && selection == 'port'){
+                            if(filter_contents != '' && key == 'portNo' && selection == 'port'){
                                 if(port[key] != filter_contents){
                                     break;
+                                }else{
+                                    row.appendChild(createTd(port[key]));
+                                    isAdded = true;
                                 }
+                            }else if(filter_contents != '' && key == 'service' && selection == 'service'){
+                                if(port[key].search(filter_contents) == -1) {
+                                    row = document.createElement('tr');
+                                    isAdded = false
+                                    break;
+                                }
+                                else{
+                                    row.appendChild(createTd(port[key]));
+                                    isAdded = true;
+                                }
+                            }else{
+                                row.appendChild(createTd(port[key]));
+                                isAdded = true;
                             }
-                            row.appendChild(createTd(port[key]));
                         }
                         if(row.childNodes.length != 0){
                             tbody.appendChild(row);
                         }
                     }
                 }catch(e){}
-                //if(tbody.childNodes.length == 4)   return false;
+                if(!isAdded)   return false; 
                 table.appendChild(tbody);
                 return table;
             }
@@ -95,10 +110,10 @@
                             if(d.scannedPorts.length == 0) continue; //throws exception if null
                         }catch(e){continue;}
                     }
-                    count++;
+                    // count++;
                     var row = document.createElement("tr");
                     var tmp_table =createTable(d.scannedPorts);
-                    if(tmp_table == false) break;
+                    if(tmp_table == false) continue;
                     row.appendChild(createTd(d.host));
                     row.appendChild(createTd(getStatusStr(d.status)));
                     row.appendChild(createTd(d.scannedPorts != null ? d.scannedPorts.length : 0));
@@ -117,7 +132,8 @@
                     divRow.append(td);
                     container.appendChild(divRow);
                 }
-                document.getElementById("title").innerHTML = count.toString() + " 개";
+                count = document.getElementById('container').children.length/2;
+                document.getElementById("title").innerHTML = count.toString() + '/' + data.length + " 개";
             }
             
             function changeHideZero(hideZero){
@@ -171,8 +187,8 @@
                 <option value="port">Port</option>
                 <option value="service">Service</option>
             </select>
-            <input type="text" id="filter" onclick="reload()">
-            <button>검색</button>
+            <input type="text" id="filter">
+            <button onclick="changeHideZero(true);reload()">검색</button>
             <table>
                 <thead>
                     <tr>
