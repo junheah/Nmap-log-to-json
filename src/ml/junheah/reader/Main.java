@@ -15,13 +15,12 @@ public class Main {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		if(args.length<1) System.out.println("arguments: <String folder location> <Boolean output as html (default: true)>");
-		else if (args.length == 1){
+		if(args.length<1) System.out.println("arguments: <String folder location> <Boolean output html (default: false)>");
+		else {
 			System.out.println("scan location = "+args[0]);
-			new Main().run(args[0], true);
-		}else if(args.length == 2) {
-			System.out.println("scan location = "+args[0]);
-			new Main().run(args[0], Boolean.parseBoolean(args[1]));
+			Boolean html = false;
+			if(args.length == 2) html = Boolean.parseBoolean(args[1]);
+			new Main().run(args[0], html);
 		}
 	}
 	
