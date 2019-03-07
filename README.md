@@ -7,7 +7,7 @@ a simple program that converts deprecated nmap "Grepable output"(-oG) to json fo
 
 also has the ability to output result as html which includes simple filtering functions
 
->[example output](junheah.github.io/Nmap-log-to-json/)
+>[example output](https://junheah.github.io/Nmap-log-to-json/)
 
 ## Usage:
 ```
