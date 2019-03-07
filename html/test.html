@@ -4,6 +4,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <script src="data.js" ></script>
         <script>
+            var existingPorts = [];
+            //TODO: MAKE THIS WORK
             function createTd(text){
                 var td = document.createElement("td");
                 td.innerHTML = text;
@@ -15,7 +17,7 @@
                 th.innerHTML = text;
                 return th;
             }
-            
+
             function getStatusStr(code){
                 switch(code){
                     case 0:
@@ -85,14 +87,14 @@
                     row.setAttribute("onClick","expand("+i+");");
                     row.className = "host";
                     container.appendChild(row);
-                    
+
                     var divRow = document.createElement("tr");
                     var td = document.createElement("td");
                     td.setAttribute("colspan",3);
                     var collapsible = document.createElement('div');
                     collapsible.className = 'ports';
                     collapsible.id = i;
-                    collapsible.appendChild(createTable(d.scannedPorts));                
+                    collapsible.appendChild(createTable(d.scannedPorts));
                     td.append(collapsible);
                     divRow.append(td);
                     container.appendChild(divRow);
@@ -129,7 +131,7 @@
                 width:10%;
             }
             div#header{
-                
+
                 background-color: #eee;
                 position: fixed;
                 top: 0;
