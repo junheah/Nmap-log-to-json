@@ -39,6 +39,14 @@
                 }
             }
 
+            function expandAll(){
+                var tr = document.getElementsByClassName('host');
+                for(a of tr){
+                    expand(a.getAttribute('onClick').split('(')[1].split(')')[0]);
+                }
+
+            }
+
             function createTable(ports){
                 var selection = document.getElementById('filter_selection').options[document.getElementById('filter_selection').selectedIndex].value
                 var filter_contents = document.getElementById('filter').value
@@ -50,7 +58,7 @@
                         tr.appendChild(createTh(key))
                     }
                 }else{
-                    tr.appendChild(createTh("There is no ports"));
+                    tr.appendChild(createTh("There are no opened ports"));
                     thead.appendChild(tr);
                     table.appendChild(thead);
                     return table;
@@ -136,8 +144,8 @@
                 document.getElementById("title").innerHTML = count.toString() + '/' + data.length + " 개";
             }
             
-            function changeHideZero(hideZero){
-                isShowZeroPorts = hideZero;
+            function changeHideZero(){
+                isShowZeroPorts = document.getElementById('chk-zero').checked;
                 reload();
             }
         </script>
@@ -181,14 +189,14 @@
         <div id='header'>
             <h2>호스트 (Up,Filtered):</h2>
             <h2 id="title"></h2>
-            <button onclick="changeHideZero(true);">포트 0 숨기기</button>
-            <button onclick="changeHideZero(false);">포트 0 보이기</button>
+            <input id="chk-zero" type="checkbox" onchange="changeHideZero()"><label for='chk-zero'>포트 0 숨기기</label></input>
             <select id="filter_selection">
                 <option value="port">Port</option>
                 <option value="service">Service</option>
             </select>
-            <input type="text" id="filter">
+            <input onkeypress="javascript:if(event.keyCode == 13){changeHideZero(true);reload()}" type="text" id="filter">
             <button onclick="changeHideZero(true);reload()">검색</button>
+            <button onclick="expandAll()">전체 열기/닫기</button>
             <table>
                 <thead>
                     <tr>
@@ -219,3 +227,4 @@
         </script>
     </body>
 </html>
+
