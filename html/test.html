@@ -42,11 +42,16 @@
                 var table = document.createElement("table");
                 var thead = document.createElement("thead");
                 var tr = document.createElement("tr");
-                tr.appendChild(createTh("port"));
-                tr.appendChild(createTh("status"));
-                tr.appendChild(createTh("protocol"));
-                tr.appendChild(createTh("service"));
-                tr.appendChild(createTh("os"));
+                if(ports != null){
+                    for(key in ports[0]){
+                        tr.appendChild(createTh(key))
+                    }
+                }else{
+                    tr.appendChild(createTh("There is no ports"));
+                    thead.appendChild(tr);
+                    table.appendChild(thead);
+                    return table;
+                }
                 thead.appendChild(tr);
                 table.appendChild(thead);
                 var tbody = document.createElement("tbody");
@@ -54,11 +59,9 @@
                     for(var i=0; i< ports.length; i++){
                         var port = ports[i];
                         var row = document.createElement('tr');
-                        row.appendChild(createTd(port.port));
-                        row.appendChild(createTd(port.status));
-                        row.appendChild(createTd(port.protocol));
-                        row.appendChild(createTd(port.service));
-                        row.appendChild(createTd(port.os));
+                        for (key in port){
+                            row.appendChild(createTd(port[key]));
+                        }
                         tbody.appendChild(row);
                     }
                 }catch(e){}
@@ -145,6 +148,12 @@
             <h2 id="title"></h2>
             <button onclick="reload(true);">포트 0 숨기기</button>
             <button onclick="reload(false);">포트 0 보이기</button>
+            <select>
+                <option value="port">Port</option>
+                <option value="service">Service</option>
+            </select>
+            <input type="text" id="filter">
+            <button>검색</button>
             <table>
                 <thead>
                     <tr>
