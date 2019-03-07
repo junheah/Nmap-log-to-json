@@ -14,4 +14,7 @@ also has the ability to output result as html which includes simple filtering fu
 ./executable.jar "String log file/folder path" "Boolean save output as html (default = false)"
 ```
 
+## Download:
+>[Precompiled executable jar](https://github.com/junheah/Nmap-log-to-json/raw/master/binaries/nmap_log_to_json.jar)
+
 
