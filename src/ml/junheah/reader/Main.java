@@ -2,14 +2,11 @@ package ml.junheah.reader;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -30,7 +27,6 @@ public class Main {
 	
 	public void run(String path, Boolean js) {
 		try {
-			List<Data> data;
 			File file  = new File(path);
 			int count = 0;
 			File output = new File("result_"+count+".json");
@@ -124,10 +120,9 @@ public class Main {
 				    	   while(data.length()>0) {
 				    		   int portNo = 0;
 				    		   String state = "", protocol = "", owner = "", service = "", sunRpcInfo = "", versionInfo = "";
-								int prev = 0;
-								int next = data.indexOf("/");
-								for(int i=0;true;i++) {
-									try {
+				    		   int next = data.indexOf("/");
+				    		   for(int i=0;true;i++) {
+				    			   try {
 										if(i==7) break;
 										next = data.indexOf("/")>-1 ? data.indexOf("/") : data.length();
 										String tmp = data.substring(data.indexOf(" ") == 0 ? 1: 0,next);
@@ -155,7 +150,6 @@ public class Main {
 											break;
 										}
 										data = data.substring(next+1);
-										System.out.println(data);
 									}catch(Exception e) {
 										e.printStackTrace();
 										break;
