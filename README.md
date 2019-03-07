@@ -1,3 +1,4 @@
 # Nmap-log-to-json
 
-only works on nmap log created with option < -oG >
+a simple program that converts deprecated nmap "Grepable output"(-oG) to json format
+usage: ./executable.jar "String log file/folder path" "Boolean save output as html (default = true)"

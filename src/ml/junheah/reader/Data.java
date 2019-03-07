@@ -8,13 +8,18 @@ public class Data {
 	// 1 : up
 	// 2 : filtered
 	List<Port> scannedPorts;
-	public Data(String host, List<Port> scannedPorts, int status) {
+	String ignoredState;
+	int seqIndex;
+	String ipIdSeq;
+	String os;
+	public Data(String host, List<Port> scannedPorts, int status, String ignoredState, int seqIndex, String ipIdSeq, String os) {
 		this.host = host;
 		this.scannedPorts = scannedPorts;
 		this.status = status;
+		this.ignoredState = ignoredState;
+		this.seqIndex = seqIndex;
+		this.ipIdSeq = ipIdSeq;
+		this.os = os;
 	}
-	
-	List<Port> getScannedPorts(){return scannedPorts;}
-	String getHost() {return host;}
 	int getStatus() {return status;}
 }
