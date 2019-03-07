@@ -110,7 +110,7 @@
                             if(d.scannedPorts.length == 0) continue; //throws exception if null
                         }catch(e){continue;}
                     }
-                    count++;
+                    // count++;
                     var row = document.createElement("tr");
                     var tmp_table =createTable(d.scannedPorts);
                     if(tmp_table == false) continue;
@@ -132,7 +132,8 @@
                     divRow.append(td);
                     container.appendChild(divRow);
                 }
-                document.getElementById("title").innerHTML = count.toString() + " 개";
+                count = document.getElementById('container').children.length/2;
+                document.getElementById("title").innerHTML = count.toString() + '/' + data.length + " 개";
             }
             
             function changeHideZero(hideZero){
@@ -187,7 +188,7 @@
                 <option value="service">Service</option>
             </select>
             <input type="text" id="filter">
-            <button onclick="reload()">검색</button>
+            <button onclick="changeHideZero(true);reload()">검색</button>
             <table>
                 <thead>
                     <tr>
