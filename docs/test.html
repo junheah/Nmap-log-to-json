@@ -6,6 +6,7 @@
         <script>
             var existingPorts = [];
             var expanded = false;
+
             function createTd(text){
                 var td = document.createElement("td");
                 td.innerHTML = text;
@@ -39,9 +40,9 @@
             }
 
             function expandAll(){
-                var tr = document.getElementsByClassName('ports');
+                var tr = document.getElementsByClassName('host');
                 for(var i = 0; i<tr.length; i++){
-                    tr[i].style.display = expanded ? 'none' : 'block';
+                    document.getElementById(i).style.display = expanded ? 'none' : 'block';
                 }
                 expanded = !expanded;
             }
@@ -52,25 +53,24 @@
                 var table = document.createElement("table");
                 var thead = document.createElement("thead");
                 var tr = document.createElement("tr");
-                if(ports == null){
+                if(ports != null){
+                    for(key in ports[0]){
+                        tr.appendChild(createTh(key))
+                    }
+                }else{
                     tr.appendChild(createTh("no open ports"));
                     thead.appendChild(tr);
                     table.appendChild(thead);
                     return table;
-                }else{
-                    for(key in ports[0]){
-                        tr.appendChild(createTh(key));
-                    }
                 }
-
+                thead.appendChild(tr);
+                table.appendChild(thead);
                 var tbody = document.createElement("tbody");
                 var isAdded = false;
                 try{
                     for(var i=0; i< ports.length; i++){
                         var port = ports[i];
                         var row = document.createElement('tr');
-                        var state = port['state'];
-                        if(!((state=='open' && showOpenPorts) || (state=='filtered' && showFilteredPorts) || (state=='closed' && showClosedPorts))) continue;
                         for (key in port){
                             if(filter_contents != '' && key == 'portNo' && selection == 'port'){
                                 if(port[key] != filter_contents){
@@ -100,30 +100,82 @@
                     }
                 }catch(e){}
                 if(!isAdded) return false;
-                thead.appendChild(tr);
-                table.appendChild(thead);
                 table.appendChild(tbody);
                 return table;
             }
-            var showZeroPorts, showOpenPorts, showClosedPorts, showFilteredPorts;
+
             function reload(){
-                showZeroPorts = document.getElementById('chk-zero').checked;
-                showOpenPorts = document.getElementById('chk-open').checked;
-                showClosedPorts = document.getElementById('chk-closed').checked;
-                showFilteredPorts = document.getElementById('chk-filtered').checked;
+                //booleans for filtering
+                var showZeroPorts = document.getElementById('chk-zero').checked;
+                var showOpenPorts = document.getElementById('chk-open').checked;
+                var showClosedPorts = document.getElementById('chk-closed').checked;
+                var showFilteredPorts = document.getElementById('chk-filtered').checked;
+
                 var container = document.getElementById("container");
                 //clear container
                 container.innerHTML="";
                 for(var i=0; i<data.length; i++){
+                    //data var init
                     var d = data[i];
-                    if(showZeroPorts){
-                        //continue if scanned_ports == null
-                        try{
-                            if(d.scannedPorts.length == 0) continue; //throws exception if null
-                        }catch(e){continue;}
-                    }
+
                     var row = document.createElement("tr");
-                    var tmp_table = createTable(d.scannedPorts);
+                    var selection = document.getElementById('filter_selection').options[document.getElementById('filter_selection').selectedIndex].value
+                    var filter_contents = document.getElementById('filter').value
+                    var table = document.createElement("table");
+                    var thead = document.createElement("thead");
+                    var tr = document.createElement("tr");
+
+                    if(ports != null){
+                        for(key in ports[0]){
+                            //create table header
+                            tr.appendChild(createTh(key));
+                        }
+                        //create ports table
+                        try{
+                            for(var i=0; i< scannedPorts.length; i++){
+                                var port = scannedPorts[i];
+                                var row = document.createElement('tr');
+                                for (key in port){
+                                    if(filter_contents != '' && key == 'portNo' && selection == 'port'){
+                                        if(port[key] != filter_contents){
+                                            break;
+                                        }else{
+                                            row.appendChild(createTd(port[key]));
+                                            isAdded = true;
+                                        }
+                                    }else if(filter_contents != '' && key == 'service' && selection == 'service'){
+                                        if(port[key].search(filter_contents) == -1) {
+                                            row = document.createElement('tr');
+                                            isAdded = false
+                                            break;
+                                        }
+                                        else{
+                                            row.appendChild(createTd(port[key]));
+                                            isAdded = true;
+                                        }
+                                    }else{
+                                        row.appendChild(createTd(port[key]));
+                                        isAdded = true;
+                                    }
+                                }
+                                if(row.childNodes.length != 0){
+                                    tbody.appendChild(row);
+                                }
+                            }
+                        }catch(e){}
+                        table.appendChild(tbody);
+                    }else{
+                        tr.appendChild(createTh("no open ports"));
+                        thead.appendChild(tr);
+                        table.appendChild(thead);
+                    }
+                    thead.appendChild(tr);
+                    table.appendChild(thead);
+
+                    var tbody = document.createElement("tbody");
+                    var isAdded = false;
+
+
                     if(tmp_table){
                         row.appendChild(createTd(d.host));
                         row.appendChild(createTd(getStatusStr(d.status)));

@@ -12,12 +12,12 @@ import java.util.List;
 import com.google.gson.Gson;
 
 public class Main {
-
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		if(args.length<1) System.out.println("arguments: <String folder location> <Boolean output html (default: false)>");
+		if(args.length<1) System.out.println("arguments: <String folder location> <Boolean output as html (default: false)>");
 		else {
-			System.out.println("scan location = "+args[0]);
+			System.out.println("reading logs from: "+new File(args[0]).getAbsolutePath());
 			Boolean html = false;
 			if(args.length == 2) html = Boolean.parseBoolean(args[1]);
 			new Main().run(args[0], html);
@@ -28,20 +28,12 @@ public class Main {
 		try {
 			File file  = new File(path);
 			int count = 0;
-			File output = new File("result_"+count+".json");
-			while(output.exists()) {
-				count++;
-				output = new File("result_"+count+".json");
-			}
 			//write to file
 			try {
 				List<Data> datas = readRecursive(file);
 				System.out.println("hosts count: " + datas.size());
 				String result = new Gson().toJson(datas);
-				FileWriter fw = new FileWriter(output);
-				fw.write(result);
-				fw.close();
-				System.out.println("json output: " + output.getAbsolutePath());
+				FileWriter fw;
 				if(js) {
 					//create web folder
 					File webFolder = new File("result_web_"+count);
@@ -64,7 +56,17 @@ public class Main {
 					}
 					is.close();
 					os.close();
-					System.out.println("web output: " + webFolder.getAbsolutePath());
+					System.out.println("html output: " + webFolder.getAbsolutePath());
+				}else {
+					File output = new File("result_"+count+".json");
+					while(output.exists()) {
+						count++;
+						output = new File("result_"+count+".json");
+					}
+					fw = new FileWriter(output);
+					fw.write(result);
+					fw.close();
+					System.out.println("json output: " + output.getAbsolutePath());
 				}
 			} catch (Exception e) {
 			  e.printStackTrace();

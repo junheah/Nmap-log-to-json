@@ -5,7 +5,8 @@
         <script src="data.js" ></script>
         <script>
             var existingPorts = [];
-            var expanded = false;
+            var isShowZeroPorts = false;
+            //TODO: MAKE THIS WORK
             function createTd(text){
                 var td = document.createElement("td");
                 td.innerHTML = text;
@@ -39,11 +40,11 @@
             }
 
             function expandAll(){
-                var tr = document.getElementsByClassName('ports');
-                for(var i = 0; i<tr.length; i++){
-                    tr[i].style.display = expanded ? 'none' : 'block';
+                var tr = document.getElementsByClassName('host');
+                for(a of tr){
+                    expand(a.getAttribute('onClick').split('(')[1].split(')')[0]);
                 }
-                expanded = !expanded;
+
             }
 
             function createTable(ports){
@@ -52,25 +53,24 @@
                 var table = document.createElement("table");
                 var thead = document.createElement("thead");
                 var tr = document.createElement("tr");
-                if(ports == null){
-                    tr.appendChild(createTh("no open ports"));
+                if(ports != null){
+                    for(key in ports[0]){
+                        tr.appendChild(createTh(key))
+                    }
+                }else{
+                    tr.appendChild(createTh("There are no opened ports"));
                     thead.appendChild(tr);
                     table.appendChild(thead);
                     return table;
-                }else{
-                    for(key in ports[0]){
-                        tr.appendChild(createTh(key));
-                    }
                 }
-
+                thead.appendChild(tr);
+                table.appendChild(thead);
                 var tbody = document.createElement("tbody");
                 var isAdded = false;
                 try{
                     for(var i=0; i< ports.length; i++){
                         var port = ports[i];
                         var row = document.createElement('tr');
-                        var state = port['state'];
-                        if(!((state=='open' && showOpenPorts) || (state=='filtered' && showFilteredPorts) || (state=='closed' && showClosedPorts))) continue;
                         for (key in port){
                             if(filter_contents != '' && key == 'portNo' && selection == 'port'){
                                 if(port[key] != filter_contents){
@@ -99,56 +99,55 @@
                         }
                     }
                 }catch(e){}
-                if(!isAdded) return false;
-                thead.appendChild(tr);
-                table.appendChild(thead);
+                if(!isAdded)   return false; 
                 table.appendChild(tbody);
                 return table;
             }
-            var showZeroPorts, showOpenPorts, showClosedPorts, showFilteredPorts;
+
             function reload(){
-                showZeroPorts = document.getElementById('chk-zero').checked;
-                showOpenPorts = document.getElementById('chk-open').checked;
-                showClosedPorts = document.getElementById('chk-closed').checked;
-                showFilteredPorts = document.getElementById('chk-filtered').checked;
+                var hideZero = isShowZeroPorts;
                 var container = document.getElementById("container");
                 //clear container
                 container.innerHTML="";
+                var count = 0;
                 for(var i=0; i<data.length; i++){
                     var d = data[i];
-                    if(showZeroPorts){
+                    if(hideZero){
                         //continue if scanned_ports == null
                         try{
                             if(d.scannedPorts.length == 0) continue; //throws exception if null
                         }catch(e){continue;}
                     }
+                    // count++;
                     var row = document.createElement("tr");
-                    var tmp_table = createTable(d.scannedPorts);
-                    if(tmp_table){
-                        row.appendChild(createTd(d.host));
-                        row.appendChild(createTd(getStatusStr(d.status)));
-                        row.appendChild(createTd(d.os));
-                        row.appendChild(createTd(d.scannedPorts != null ? d.scannedPorts.length : 0));
-                        row.setAttribute("onClick","expand("+i+");");
-                        row.className = "host";
-                        container.appendChild(row);
+                    var tmp_table =createTable(d.scannedPorts);
+                    if(tmp_table == false) continue;
+                    row.appendChild(createTd(d.host));
+                    row.appendChild(createTd(getStatusStr(d.status)));
+                    row.appendChild(createTd(d.scannedPorts != null ? d.scannedPorts.length : 0));
+                    row.setAttribute("onClick","expand("+i+");");
+                    row.className = "host";
+                    container.appendChild(row);
 
-                        //scannedports container
-                        var divRow = document.createElement("tr");
-                        var td = document.createElement("td");
-                        td.setAttribute("colspan",4);
-                        var collapsible = document.createElement('div');
-                        collapsible.className = 'ports';
-                        collapsible.id = i;
-                        collapsible.appendChild(tmp_table);
-                        td.append(collapsible);
-                        divRow.append(td);
-                        container.appendChild(divRow);
-                    }
+                    var divRow = document.createElement("tr");
+                    var td = document.createElement("td");
+                    td.setAttribute("colspan",3);
+                    var collapsible = document.createElement('div');
+                    collapsible.className = 'ports';
+                    collapsible.id = i;
+                    collapsible.appendChild(tmp_table);
+                    td.append(collapsible);
+                    divRow.append(td);
+                    container.appendChild(divRow);
                 }
-                document.getElementById("title").innerHTML = (document.getElementById('container').children.length/2).toString() + '/' + data.length + " 개";
+                count = document.getElementById('container').children.length/2;
+                document.getElementById("title").innerHTML = count.toString() + '/' + data.length + " 개";
             }
-
+            
+            function changeHideZero(){
+                isShowZeroPorts = document.getElementById('chk-zero').checked;
+                reload();
+            }
         </script>
         <style>
             table{
@@ -190,23 +189,19 @@
         <div id='header'>
             <h2>호스트 (Up,Filtered):</h2>
             <h2 id="title"></h2>
-            <input id="chk-zero" type="checkbox" onchange="reload();"><label for='chk-zero'>포트 0 숨기기</label></input>
+            <input id="chk-zero" type="checkbox" onchange="changeHideZero()"><label for='chk-zero'>포트 0 숨기기</label></input>
             <select id="filter_selection">
                 <option value="port">Port</option>
                 <option value="service">Service</option>
             </select>
-            <input onkeypress="javascript:if(event.keyCode == 13){showZeroPorts = document.getElementById('chk-zero').checked;reload();}" type="text" id="filter">
-            <button onclick="showZeroPorts = document.getElementById('chk-zero').checked;reload();">검색</button>
+            <input onkeypress="javascript:if(event.keyCode == 13){changeHideZero(true);reload()}" type="text" id="filter">
+            <button onclick="changeHideZero(true);reload()">검색</button>
             <button onclick="expandAll()">전체 열기/닫기</button>
-            <input id="chk-open" type="checkbox" checked="true" onchange="reload()"><label for='chk-open'>open</label></input>
-            <input id="chk-filtered" type="checkbox" checked="true" onchange="reload()"><label for='chk-filterd'>filtered</label></input>
-            <input id="chk-closed" type="checkbox" checked="true" onchange="reload()"><label for='chk-closed'>closed</label></input>
             <table>
                 <thead>
                     <tr>
                         <th>host</th>
                         <th>status</th>
-                        <th>os</th>
                         <th>ports</th>
                     </tr>
                 </thead>
@@ -216,7 +211,6 @@
             <table>
                 <thead>
                     <tr>
-                        <th></th>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -233,3 +227,4 @@
         </script>
     </body>
 </html>
+
